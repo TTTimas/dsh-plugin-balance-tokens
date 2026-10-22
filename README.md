@@ -10,6 +10,9 @@ DeepSeek Harness（DSH）桌面版插件：在 Web GUI 窗口最底部显示一�
 - 右：`本会话 45.6k tokens · 上下文剩余 96.1k / 128k`。
 - 无活动会话时显示「无活动会话」，尚未有模型用量时显示「等待用量数据」，未登录时显示「账户未登录」。
 - 中英文案跟随界面语言自动切换。
+- 
+- <img width="1593" height="269" alt="image" src="https://github.com/user-attachments/assets/d340d010-dd9d-4bd3-8519-a1c45858be2a" />
+
 
 ## 实现方式
 
