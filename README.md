@@ -7,21 +7,39 @@ DeepSeek Harness（DSH）桌面版插件：在 Web GUI 窗口最底部显示一�
 ## 效果
 
 - 左：`余额 充值 ¥12.34 · 赠送 ¥3.00`，点击手动刷新，每 60 秒自动刷新，页面重新可见时也会刷新。
-- 右：`本会话 45.6k tokens · 上下文剩余 96.1k / 128k`。
+- 余额按预警等级着色，金额前有同色圆点，悬停可看状态与阈值：
+
+  | 颜色 | CNY | USD | 含义 |
+  | --- | --- | --- | --- |
+  | 绿色 | ≥ ¥20 | ≥ $3 | 余额充足 |
+  | 黄色 | ¥5 – ¥19.99 | $1 – $2.99 | 余额偏低 |
+  | 红色 | < ¥5 | < $1 | 余额预警 |
+
+  等级按「充值 + 赠送」的合计余额计算；多币种时以 CNY 为主，其次 USD，其他币种沿用 CNY 阈值。
+- 右：`本会话 45.6k tokens · 上下文剩余 96.1k / 128k`，两项同样分级，指标前有同色圆点：
+
+  | 指标 | 绿色 | 黄色 | 红色 |
+  | --- | --- | --- | --- |
+  | 本会话 token | < 1M | 1M – <5M | ≥ 5M |
+  | 上下文剩余 | ≥ 30% | 10% – <30% | < 10% |
+
+  上下文百分比按「剩余 / contextWindow」计算。
+- 截图：
+
+  ![状态条](docs/statusbar.png)
+
+  <img width="1589" height="182" alt="状态条截图" src="https://github.com/user-attachments/assets/44ed844a-070d-46b5-8ba8-773c5867ec1c" />
 - 无活动会话时显示「无活动会话」，尚未有模型用量时显示「等待用量数据」，未登录时显示「账户未登录」。
 - 中英文案跟随界面语言自动切换。
-- 
-- <img width="1589" height="182" alt="image" src="https://github.com/user-attachments/assets/44ed844a-070d-46b5-8ba8-773c5867ec1c" />
-
-
 
 ## 实现方式
 
 - 注入点：`shell.bottom`——`root` 作用域的全宽底部插槽（`ui-layout` 声明），插件通过 `ctx.slots.inject('shell.bottom', …)` 注册。
 - 余额：Host 账户服务的 `account/getBalance` RPC（`ctx.remote.account.getBalance({ version, locale, timezoneOffsetSeconds })`）。凭据只在 Host 侧，前端拿不到 token。
   返回 `null`（未登录）、`{ status: 'ready', value: [...], bonusWallets: [...] }` 或 `{ status: 'failed' }`。
+- 分级阈值集中在 `lib/client.js` 的 `BALANCE_BANDS` / `TOKEN_BANDS` / `CONTEXT_BANDS`；颜色只用主题 `state-success` / `state-warn` / `state-error` 令牌，文字色按比例混入 `label-primary`，保证明暗两套主题下的小字号对比度。加载中、失败、未登录、无用量数据不显示等级圆点。
 - Token：会话列表快照中 Host 计算的投影 `tokenUsage` / `contextPressure`（由会话日志重放得出）；当前会话取 `retainedBy.mainView > 0` 的行。
-  DSH 没有 token 预算概念，所以「剩余」指上下文窗口余量：`contextWindow - projectedTokens`。
+  「本会话」按输入、缓存读写、输出四项合计分级；「上下文剩余」= `contextWindow - projectedTokens`，按剩余占比分级。
 
 ## 目录结构
 
@@ -31,6 +49,7 @@ cordis.patch.yml    bundle 补丁：insert 本包为 Loader 条目
 lib/index.js        node 半侧（纯 UI 插件，空 apply）
 lib/client.js       浏览器半侧，已构建格式，无需构建步骤
 tests/smoke.cjs     无依赖冒烟测试
+docs/statusbar.png  状态条截图（README 引用）
 ```
 
 `lib/client.js` 直接使用 `window.__ModuleLoader__.load({ id, factory })` 的已构建格式，仅依赖基线共享模块（react 等），不声明 `dsh.client.external`。
