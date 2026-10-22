@@ -1,0 +1,7 @@
+# This bundle inserts one Loader entry: the plugin package itself.
+# The package's node half is a pure-UI plugin (empty apply); its browser half
+# ships as exports["./client"], discovered through the package.json dsh.client
+# declaration.
+- insert:
+    - id: balance-tokens
+      name: 'dsh-plugin-balance-tokens'

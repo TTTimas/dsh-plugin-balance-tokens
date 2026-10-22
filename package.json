@@ -1,0 +1,51 @@
+{
+  "name": "dsh-plugin-balance-tokens",
+  "version": "0.1.0",
+  "description": "Status strip below the workspace: DeepSeek account balance and session token usage / remaining context.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TTTimas/dsh-plugin-balance-tokens.git"
+  },
+  "homepage": "https://github.com/TTTimas/dsh-plugin-balance-tokens",
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "balance",
+    "tokens"
+  ],
+  "scripts": {
+    "test": "node tests/smoke.cjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "~4.0.5"
+  },
+  "license": "MIT"
+}
